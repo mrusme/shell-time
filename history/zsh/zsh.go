@@ -2,6 +2,7 @@ package zsh
 
 import (
 	"bufio"
+	"errors"
 	"io"
 	"os"
 	"strconv"
@@ -64,10 +65,27 @@ func (history *History) Initialize(historyFile string) error {
 	return nil
 }
 
+func (history *History) GetNumberOfLines() int64 {
+	return int64(len(history.lines))
+}
+
 func (history *History) GetLines() []*string {
 	var lines []*string
 	for i := 0; i < len(history.lines); i++ {
 		lines = append(lines, &history.lines[i].line)
 	}
 	return lines
+}
+
+func (history *History) GetLine(lineIdx int64) (time.Time, string, string, error) {
+	if lineIdx >= int64(len(history.lines)) {
+		return time.Now(),
+			"",
+			"",
+			errors.New("Index out of range")
+	}
+	return history.lines[lineIdx].timestamp,
+		history.lines[lineIdx].command,
+		history.lines[lineIdx].args,
+		nil
 }
