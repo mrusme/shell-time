@@ -27,6 +27,10 @@ func (history *History) Initialize(historyFile string) error {
 		return err
 	}
 
+	return history.ParseHistFile(f)
+}
+
+func (history *History) ParseHistFile(f io.Reader) error {
 	var tmpline string
 	r := bufio.NewReader(f)
 	for {
