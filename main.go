@@ -8,11 +8,12 @@ import (
 )
 
 func main() {
+	// TODO: Filepath
 	hist, err := history.New("zsh", "/home/mrus/.zsh_history")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, err.Error())
 		os.Exit(1)
 	}
 
-	fmt.Printf("%v", hist.GetLines()[1337])
+	fmt.Printf("%v", (*hist.GetLines()[1]))
 }
