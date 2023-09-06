@@ -8,7 +8,7 @@ import (
 
 type History interface {
 	Initialize(path string) error
-	GetLines() []string
+	GetLines() []*string
 }
 
 func New(historyFormat string, historyFile string) (History, error) {
