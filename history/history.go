@@ -2,13 +2,16 @@ package history
 
 import (
 	"errors"
+	"time"
 
 	"github.com/mrusme/shell-time/history/zsh"
 )
 
 type History interface {
 	Initialize(path string) error
+	GetNumberOfLines() int64
 	GetLines() []*string
+	GetLine(lineIdx int64) (time.Time, string, string, error)
 }
 
 func New(historyFormat string, historyFile string) (History, error) {
