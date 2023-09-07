@@ -24,7 +24,8 @@ func TestParseHistFile(t *testing.T) {
 }'
 : 1629132862:0;/bin/ls -1 ./[0-9]+.pdf
 : 1629831598:0;TESSDATA_PREFIX=~/projects/gitub/tessdata/ grim -g "2250,882 348x78" - | tesseract - - -l deu
-: 1635604737:0;TF_VAR_fn_api_stripe=false TF_VAR_fn_api_blueprints=false TF_VAR_fn_api_jobs=false terraform apply`
+: 1635604737:0;TF_VAR_fn_api_stripe=false TF_VAR_fn_api_blueprints=false TF_VAR_fn_api_jobs=false terraform apply
+: 1653852006:0;TF_VAR_vultr_api_key=$VULTR_API_KEY terraform -chdir=./terraform init`
 
 	f := strings.NewReader(testHistFile)
 
@@ -98,6 +99,24 @@ func TestParseHistFile(t *testing.T) {
 	}
 
 	if cmd != "/bin/ls" {
+		t.Errorf("Parsing command failed\n")
+	}
+
+	if args[1] != '1' {
+		t.Errorf("Parsing args failed\n")
+	}
+
+	// Ninth line
+	ts, cmd, args, err = hist.GetLine(6)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if ts.Unix() != 1653852006 {
+		t.Errorf("Parsing timestamp failed\n")
+	}
+
+	if cmd != "" {
 		t.Errorf("Parsing command failed\n")
 	}
 

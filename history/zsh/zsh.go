@@ -5,10 +5,15 @@ import (
 	"errors"
 	"io"
 	"os"
+	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
 )
+
+var CMDRX = regexp.
+	MustCompile(`(?m)(?P<env>\w+=[^[:space:]]* ){0,}(?P<cmd>[^[:space:]]*)( ){0,}(?P<args>.*)`)
 
 type HistoryLine struct {
 	line      string
@@ -49,17 +54,12 @@ func (history *History) ParseHistFile(f io.Reader) error {
 					return terr
 				}
 				tmpsplit := strings.SplitN(tmpline, ";", 2)
-				cmdsplit := strings.SplitN(tmpsplit[1], " ", 2)
-				cmdargs := ""
-				if len(cmdsplit) > 1 {
-					cmdargs = cmdsplit[1]
-				}
 
 				history.lines = append(history.lines, HistoryLine{
 					line:      tmpline,
 					timestamp: time.Unix(t, 0),
-					command:   cmdsplit[0],
-					args:      cmdargs,
+					command:   history.getCommand(tmpsplit[1]),
+					args:      history.getArgs(tmpsplit[1]),
 				})
 				tmpline = ""
 			}
@@ -92,4 +92,30 @@ func (history *History) GetLine(lineIdx int64) (time.Time, string, string, error
 		history.lines[lineIdx].command,
 		history.lines[lineIdx].args,
 		nil
+}
+
+func (history *History) getCommand(line string) string {
+	f := CMDRX.FindStringSubmatch(line)
+	c := CMDRX.SubexpNames()
+
+	for i, cn := range c {
+		if cn == "cmd" {
+			return filepath.Base(f[i])
+		}
+	}
+
+	return "NULL"
+}
+
+func (history *History) getArgs(line string) string {
+	f := CMDRX.FindStringSubmatch(line)
+	c := CMDRX.SubexpNames()
+
+	for i, cn := range c {
+		if cn == "args" {
+			return f[i]
+		}
+	}
+
+	return ""
 }
