@@ -21,5 +21,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	stats.GetStats(hist)
+	s, err := stats.LoadStats(hist)
+	s.TopCommands(10)
+	s.TopHours(5)
 }
