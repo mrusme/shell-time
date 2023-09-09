@@ -22,6 +22,10 @@ func main() {
 	}
 
 	s, err := stats.LoadStats(hist)
-	s.TopCommands(10)
-	s.TopHours(5)
+	topCommands := s.TopCommands(10)
+	topHours := s.TopHours(5)
+
+	fmt.Printf("%v\n\n", topCommands)
+	fmt.Printf("%v\n\n", topHours)
+	fmt.Printf("%v\n\n", s.MinutesPerDay)
 }
