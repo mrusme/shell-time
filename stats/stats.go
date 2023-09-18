@@ -79,12 +79,24 @@ func LoadStats(hist history.History) (Stats, error) {
 }
 
 func (stats *Stats) TopCommands(num int) []TopCommandStat {
+	return stats.CommandsStat(num, true)
+}
+
+func (stats *Stats) LeastUsedCommands(num int) []TopCommandStat {
+	return stats.CommandsStat(num, false)
+}
+
+func (stats *Stats) CommandsStat(num int, top bool) []TopCommandStat {
 	keys := make([]string, 0, len(stats.Commands))
 	for key := range stats.Commands {
 		keys = append(keys, key)
 	}
 	sort.SliceStable(keys, func(i, j int) bool {
-		return stats.Commands[keys[i]].Count > stats.Commands[keys[j]].Count
+		if top {
+			return stats.Commands[keys[i]].Count > stats.Commands[keys[j]].Count
+		} else {
+			return stats.Commands[keys[i]].Count < stats.Commands[keys[j]].Count
+		}
 	})
 
 	var ret []TopCommandStat
