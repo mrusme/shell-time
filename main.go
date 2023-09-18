@@ -28,4 +28,5 @@ func main() {
 	fmt.Printf("%v\n\n", topCommands)
 	fmt.Printf("%v\n\n", topHours)
 	fmt.Printf("%v\n\n", s.MinutesPerDay)
+	fmt.Printf("%d\n\n", s.AverageMinutesPerDay)
 }

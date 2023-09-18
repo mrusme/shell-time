@@ -1,7 +1,6 @@
 package stats
 
 import (
-	"fmt"
 	"sort"
 	"time"
 
@@ -16,9 +15,10 @@ type CommandStats struct {
 }
 
 type Stats struct {
-	Commands      map[string]CommandStats
-	Hours         map[int]int
-	MinutesPerDay map[string]uint16
+	Commands             map[string]CommandStats
+	Hours                map[int]int
+	MinutesPerDay        map[string]uint16
+	AverageMinutesPerDay uint16
 }
 
 type TopHourStat struct {
@@ -65,15 +65,16 @@ func LoadStats(hist history.History) (Stats, error) {
 			previousTimestamp = timestamp
 		}
 		diffDuration := timestamp.Sub(previousTimestamp)
-		fmt.Printf("%d ", int(diffDuration.Seconds()))
 		if diffDuration.Seconds() >= 60 {
 			if diffDuration.Minutes() <= 5 {
 				stats.MinutesPerDay[timestamp.Format("20060102")] += uint16(diffDuration.Minutes())
+				stats.AverageMinutesPerDay += uint16(diffDuration.Minutes())
 			}
 			previousTimestamp = timestamp
 		}
 	}
 
+	stats.AverageMinutesPerDay = stats.AverageMinutesPerDay / uint16(len(stats.MinutesPerDay))
 	return stats, nil
 }
 
