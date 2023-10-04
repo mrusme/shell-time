@@ -2,6 +2,7 @@ package stats
 
 import (
 	"sort"
+	"strconv"
 	"time"
 
 	"github.com/mrusme/shell-time/history"
@@ -11,12 +12,12 @@ type CommandStats struct {
 	Command    string
 	Count      int64
 	Timestamps []time.Time
-	Hours      map[int]int
+	Hours      map[string]int
 }
 
 type Stats struct {
 	Commands             map[string]CommandStats
-	Hours                map[int]int
+	Hours                map[string]int
 	MinutesPerDay        map[string]uint16
 	AverageMinutesPerDay uint16
 }
@@ -34,7 +35,7 @@ type TopCommandStat struct {
 func LoadStats(hist history.History) (Stats, error) {
 	var stats Stats
 	stats.Commands = make(map[string]CommandStats)
-	stats.Hours = make(map[int]int)
+	stats.Hours = make(map[string]int)
 	stats.MinutesPerDay = make(map[string]uint16)
 
 	var previousTimestamp time.Time
@@ -50,16 +51,16 @@ func LoadStats(hist history.History) (Stats, error) {
 		cmdstat, ok := stats.Commands[cmd]
 		if !ok {
 			cmdstat = CommandStats{}
-			cmdstat.Hours = make(map[int]int)
+			cmdstat.Hours = make(map[string]int)
 		}
 
 		cmdstat.Command = cmd
 		cmdstat.Count++
 		cmdstat.Timestamps = append(cmdstat.Timestamps, timestamp)
-		cmdstat.Hours[timestamp.Hour()]++
+		cmdstat.Hours[strconv.Itoa(timestamp.Hour())]++
 
 		stats.Commands[cmd] = cmdstat
-		stats.Hours[timestamp.Hour()]++
+		stats.Hours[strconv.Itoa(timestamp.Hour())]++
 
 		if previousTimestamp.IsZero() {
 			previousTimestamp = timestamp
@@ -114,19 +115,19 @@ func (stats *Stats) CommandsStat(num int, top bool) []TopCommandStat {
 }
 
 func (stats *Stats) TopHours(num int) []TopHourStat {
-	hours := []int{
-		1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
-		13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 0,
+	keys := make([]string, 0, len(stats.Hours))
+	for key := range stats.Hours {
+		keys = append(keys, key)
 	}
-
-	sort.SliceStable(hours, func(i, j int) bool {
-		return stats.Hours[i] > stats.Hours[j]
+	sort.SliceStable(keys, func(i, j int) bool {
+		return stats.Hours[keys[i]] > stats.Hours[keys[j]]
 	})
 
 	var ret []TopHourStat
-	for i, hour := range hours {
+	for i, hour := range keys {
+		h, _ := strconv.Atoi(hour)
 		ret = append(ret, TopHourStat{
-			Hour:  hour,
+			Hour:  h,
 			Count: int64(stats.Hours[hour]),
 		})
 		if i == (num - 1) {
